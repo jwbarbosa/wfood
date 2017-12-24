@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style type="text/css">
+.col1 {
+	width: 70%;
+}
+
+.col2 {
+	width: 30%;
+}
+
+.col3 {
+	width: 65%"
+}
+
+.col4 {
+	width: 35%"
+}
+
+</style>
+	<title>WFOOD - BOM APETITE!</title>
+</h:head>
+
+<h:body>
+
+<p:panelGrid>
+	<h:form>
+		<p:panel >
+			<p:outputPanel>
+				<h4>BEM VINDO!--WFOOD - BOM APETITE! </h4>
+			</p:outputPanel>		
+		</p:panel>
+	</h:form>
+</p:panelGrid>
+	<p:panelGrid columns="2" columnClasses="col1, col2">
+		<p:dataTable style="margin-top:20px; width: 100%"
+			value="#{cardapioBean.lanches}" var="lanche">
+			<f:facet name="header">
+				<h:outputText value="Cardápio" />
+			</f:facet>
+			<p:column headerText="#" style="width: 7%">
+				<h:outputText value=" #{lanche.id}" />
+			</p:column>
+			<p:column headerText="Lanche" style="width: 20%">
+				<h:outputText value=" #{lanche.nome}" />
+			</p:column>
+			<p:column headerText="Ingredientes" style="width: 42%">
+				<h:outputText value="#{lanche.descricao}" />
+			</p:column>
+			<p:column headerText="Valor" style="width: 15%">
+				<h:outputText value="#{lanche.valor}">
+					<f:convertNumber currencySymbol="R$" type="currency" />
+				</h:outputText>
+			</p:column>
+			<p:column headerText="Adicionar ao Pedido"
+				style="text-align: center; width: 15%">
+				<h:form>
+					<h:commandButton value="+" action="#{pedidoBean.addLanchePedido}" title="Adicionar lanche ao pedido">
+						<f:setPropertyActionListener target="#{pedidoBean.lancheAtual}"
+							value="#{lanche}" />
+					</h:commandButton>
+				</h:form>
+			</p:column>
+		</p:dataTable>
+
+		<p:dataTable style="width: 100%;"
+			value="#{ingredienteBean.ingredientes}" var="ingrediente">
+			<f:facet name="header">
+				<h:outputText value="Lista de Ingredientes" />
+			</f:facet>
+
+			<p:column style="width: 10%" headerText="#">
+				<h:outputText value="#{ingrediente.id}" />
+			</p:column>
+
+			<p:column style="width: 60%" headerText="INGREDIENTE">
+				<h:outputText value="#{ingrediente.nome}" />
+			</p:column>
+
+			<p:column style="width: 30%" headerText="Valor">
+				<h:outputText value="#{ingrediente.valor}">
+					<f:convertNumber currencySymbol="R$" type="currency" />
+				</h:outputText>
+			</p:column>
+			<p:columnGroup type="footer">
+					<p:row>
+						<h:form>
+							<p:inputNumber  id="fator" value="#{ingredienteBean.fator}"/>
+							<h:commandButton  action="#{ingredienteBean.calcular()}" value="Calcular Inflação">
+							</h:commandButton>
+						</h:form>
+					</p:row>
+			</p:columnGroup>
+			
+		</p:dataTable>
+	</p:panelGrid>
+
+	<p:panelGrid columns="2" columnClasses="col3, col4">
+		<p:dataTable id="pedidos" value="#{pedidoBean.pedido.lanches}"
+			var="lanche"
+			emptyMessage="Selecione ou personalize um Lanche no Cardápio">
+			<f:facet name="header">
+				<h:outputText value="Pedido" />
+			</f:facet>
+			<p:column style="width: 5%"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}" headerText="#">
+				<h:outputText value="#{lanche.id}" />
+			</p:column>
+			
+			<p:column style="width: 18%"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}" headerText="Lanche">
+				<h:outputText value="#{lanche.nome}" />
+			</p:column>
+
+			<p:column style="width: 50%"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}"
+				headerText="Ingredientes">
+				<p:dataTable id="ingredientesPedido"
+					emptyMessage="Adicione os ingredientes"
+					value="#{lanche.ingredientes}" var="ing" type="definition">
+					<p:column style="width: 80%">
+						<h:outputText value="#{ing.nome}" />
+					</p:column>
+					<p:column style="width: 20%">
+						<h:form>
+							<h:commandButton style="width: 100%" value="-" title="Remover ingrediente"
+								action="#{pedidoBean.removerIngredientePedido(ing)}">
+								<f:setPropertyActionListener
+									target="#{pedidoBean.lancheAtualPedido}" value="#{lanche}" />
+							</h:commandButton>
+						</h:form>
+					</p:column>
+
+				</p:dataTable>
+				<p:commandLink value="Add..." type="button" title="Adicionar ingredientes"
+					onclick="PF('dlgIng').show();">
+					<f:setPropertyActionListener
+						target="#{pedidoBean.lancheAtualPedido}" value="#{lanche}" />
+				</p:commandLink>
+				<p:dialog header="Ingredientes" widgetVar="dlgIng" modal="true">
+					<h:form>
+						<p:dataList value="#{ingredienteBean.ingredientes}" var="ing" type="definition">
+							<p:commandButton value="+" action="#{pedidoBean.addIngLanche(ing)}" title="Adicionar"
+								update=":pedidos"  />
+							<h:outputText value="#{ing.nome}" />
+						</p:dataList>
+					</h:form>
+				</p:dialog>
+			</p:column>
+
+			<p:column style="width: 15%"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}" headerText="Valor">
+				<h:outputText value="#{lanche.valor}">
+					<f:convertNumber currencySymbol="R$" type="currency" />
+				</h:outputText>
+			</p:column>
+
+			<p:column style="width: 16%"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}"
+				headerText="Desconto">
+				<h:outputText value="#{lanche.desconto}">
+					<f:convertNumber currencySymbol="R$" type="currency" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Ação" style="text-align: center; width: 11%"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}">
+				<h:form>
+					<h:commandButton value="-" title="Remover lanche do pedido"
+						action="#{pedidoBean.removerLanchePedido()}">
+						<f:setPropertyActionListener
+							target="#{pedidoBean.lancheAtualPedido}" value="#{lanche}" />
+					</h:commandButton>
+				</h:form>
+			</p:column>
+
+
+			<p:columnGroup type="footer"
+				rendered="#{pedidoBean.pedido.lanches.size()>0}">
+				<h:form>
+					<p:row>
+						<p:column footerText="" />
+						<p:column footerText="" />
+						<p:column footerText="Total" />
+						<p:column>
+							<f:facet name="footer">
+								<h:outputText value="#{pedidoBean.pedido.valorTotal}">
+									<f:convertNumber currencySymbol="R$" type="currency" />
+								</h:outputText>
+							</f:facet>
+						</p:column>
+						<p:column>
+							<f:facet name="footer">
+								<h:outputText value="#{pedidoBean.pedido.valorDesconto}">
+									<f:convertNumber currencySymbol="R$" type="currency" />
+								</h:outputText>
+							</f:facet>
+						</p:column>
+					</p:row>
+
+					<p:row >
+						<p:column footerText="" />
+						<p:column footerText="" />
+						<p:column footerText="Total a pagar" />
+						<p:column>
+							<f:facet name="footer">
+								<h:outputText value="#{pedidoBean.pedido.valorPagamento}">
+									<f:convertNumber currencySymbol="R$" type="currency" />
+								</h:outputText>
+							</f:facet>
+						</p:column>
+					</p:row>
+
+
+				</h:form>
+			</p:columnGroup>
+		</p:dataTable>
+
+
+		<p:dataTable style="width: 100%;" value="#{promocaoBean.promocao}"
+			var="item">
+			<f:facet name="header">
+				<h:outputText value="PROMOÇÃO" />
+			</f:facet>
+
+			<p:column style="width: 30%" headerText="#">
+				<h:outputText value="#{item.nome}" />
+			</p:column>
+
+			<p:column style="width: 70%" headerText="Descrição">
+				<h:outputText value="#{item.descricao}" />
+			</p:column>
+		</p:dataTable>
+
+	</p:panelGrid>
+</h:body>
+
+</html>
